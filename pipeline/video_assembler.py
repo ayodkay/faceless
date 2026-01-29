@@ -173,15 +173,29 @@ class VideoAssembler:
                 font = ImageFont.load_default()
 
             text = active_chunk["text"]
-            # Wrap text
+            padding = int(w * 0.08)  # 8% horizontal padding
+            max_text_w = w - padding * 2
+
+            # Wrap text to fit within padded area
             wrapped = textwrap.fill(text, width=self.config.caption_max_chars)
 
             # Measure text
             bbox = draw.textbbox((0, 0), wrapped, font=font)
             tw = bbox[2] - bbox[0]
             th = bbox[3] - bbox[1]
+
+            # Clamp text width: re-wrap tighter if it exceeds padded area
+            if tw > max_text_w:
+                ratio = max_text_w / tw
+                narrower = max(10, int(self.config.caption_max_chars * ratio))
+                wrapped = textwrap.fill(text, width=narrower)
+                bbox = draw.textbbox((0, 0), wrapped, font=font)
+                tw = bbox[2] - bbox[0]
+                th = bbox[3] - bbox[1]
+
+            # Center horizontally and vertically
             x = (w - tw) // 2
-            y = int(h * self.config.caption_y_position)
+            y = (h - th) // 2
 
             # Draw stroke
             sw = self.config.caption_stroke_width
