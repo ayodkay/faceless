@@ -12,6 +12,8 @@ BASE_DIR = Path(__file__).parent
 class Config:
     # API
     pexels_api_key: str = field(default_factory=lambda: os.getenv("PEXELS_API_KEY", ""))
+    pixabay_api_key: str = field(default_factory=lambda: os.getenv("PIXABAY_API_KEY", ""))
+    video_source: str = field(default_factory=lambda: os.getenv("VIDEO_SOURCE", "pexels"))  # pexels, pixabay, or both
     ollama_base_url: str = field(default_factory=lambda: os.getenv("OLLAMA_BASE_URL", "http://localhost:11434"))
     ollama_model: str = field(default_factory=lambda: os.getenv("OLLAMA_MODEL", "llama3"))
 

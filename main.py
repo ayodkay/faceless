@@ -22,6 +22,8 @@ def main():
     parser.add_argument("--duration", type=int, default=60, help="Target duration in seconds (default: 60)")
     parser.add_argument("--music", default=None, help="Path to background music file")
     parser.add_argument("--output", default=None, help="Output directory")
+    parser.add_argument("--source", default=None, choices=["pexels", "pixabay", "both"],
+                        help="Video source: pexels, pixabay, or both (default: from .env or pexels)")
     parser.add_argument("--no-gpu", action="store_true", help="Disable GPU acceleration")
 
     args = parser.parse_args()
@@ -31,6 +33,8 @@ def main():
 
     if args.voice:
         config.voice = args.voice
+    if args.source:
+        config.video_source = args.source
     if args.output:
         from pathlib import Path
         config.output_dir = Path(args.output)
@@ -38,12 +42,17 @@ def main():
     if args.no_gpu:
         config.use_nvenc = False
 
-    if not config.pexels_api_key:
+    # Validate API keys for chosen source
+    source = config.video_source.lower()
+    if source in ("pexels", "both") and not config.pexels_api_key:
         console.print("[red]Error:[/] PEXELS_API_KEY not set. Add it to .env file.")
+        sys.exit(1)
+    if source in ("pixabay", "both") and not config.pixabay_api_key:
+        console.print("[red]Error:[/] PIXABAY_API_KEY not set. Add it to .env file.")
         sys.exit(1)
 
     console.print(f"[bold]Generating video:[/] {args.topic}")
-    console.print(f"  Niche: {args.niche} | Duration: {args.duration}s | Voice: {config.voice}")
+    console.print(f"  Niche: {args.niche} | Duration: {args.duration}s | Voice: {config.voice} | Source: {config.video_source}")
     console.print()
 
     try:
